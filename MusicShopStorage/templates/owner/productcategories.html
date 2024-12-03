@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<script>
+    function showAddForm() {
+        document.getElementById('add-form').style.display = 'block';
+        document.getElementById('edit-form').style.display = 'none'; // Скрываем форму редактирования
+        document.getElementById('add-form').reset(); // Сбрасываем форму добавления
+    }
+
+    function editCategory(Id) {
+        const row = document.getElementById(`category-${Id}`);
+        if (!row) {
+            console.error('category row not found:', Id);
+            return;
+        }
+        // Заполняем поля формы редактирования данными из строки таблицы
+        document.getElementById('edit-id').value = Id;
+        document.getElementById('edit-categoryname').value = row.querySelector('.categoryname').innerText;
+        // Показываем форму редактирования
+        document.getElementById('edit-form').style.display = 'block';
+        document.getElementById('add-form').style.display = 'none'; // Скрываем форму добавления
+    }
+
+    function deleteClient(Id) {
+        if (confirm('Вы уверены, что хотите удалить этогу категорию?')) {
+            fetch(`/productcategories/delete/${Id}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}', // Добавьте CSRF-токен
+                },
+            })
+            .then(response => {
+                if (response.ok) {
+                    document.getElementById(`category-${Id}`).remove(); // Удаляем строку из таблицы
+                } else {
+                    alert('Ошибка при удалении клиента.');
+                }
+            });
+        }
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+    <h1>Категории</h1>
+
+    <a href="{% url 'index' 'owner' %}" class="back-button">Вернуться на прошлую страницу</a>
+    <button class="add-button" onclick="showAddForm()">Добавить категорию</button>
+    
+    <!-- Форма добавления -->
+    <div id="add-form" style="display:none;">
+        <h2>Добавить работника</h2>
+        <form method="post" action="add/">
+            {% csrf_token %}
+            Название категории:<br>
+            <input type="text" id="add-categoryname" name="categoryname" required><br>
+            
+            <button type="submit">Добавить</button>
+            <button type="button" onclick="document.getElementById('add-form').style.display='none'">Отмена</button>
+        </form>
+    </div>
+    
+    <!-- Форма редактирования -->
+    <div id="edit-form" style="display:none;">
+        <h2>Редактировать работника</h2>
+        <form method="post" action="edit/">
+            {% csrf_token %}
+            ID:<br>
+            <input type="number" id="edit-id" name="id" readonly><br>
+            
+            Название категории:<br>
+            <input type="text" id="edit-categoryname" name="categoryname" required><br>
+    
+            <button type="submit">Сохранить изменения</button>
+            <button type="button" onclick="document.getElementById('edit-form').style.display='none'">Отмена</button>
+        </form>
+    </div>
+
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Название</th>
+            <th>Действия</th>
+        </tr>
+        {% for productcategory in productcategories %}
+        <tr id="category-{{ productcategory.0 }}">
+            <td class="id">{{ productcategory.0 }}</td>
+            <td class="categoryname">{{ productcategory.1 }}</td>
+            <td> 
+                <button class='edit-button' onclick='editCategory("{{ productcategory.0 }}")'>Редактировать</button> 
+                <form method="POST" action="delete/" style="display:inline;">
+                  {% csrf_token %}
+                  <input type="hidden" id="edit-id" name="id" value="{{ productcategory.0 }}"><br>
+                  <button class="delete-button" type="submit" onclick="return confirm('Вы уверены, что хотите удалить эту категорию?');">Удалить</button>
+                </form> 
+            </td> 
+        </tr>
+        {% endfor %}
+    </table>
+    {% endblock %}
+
+<!--productcategories

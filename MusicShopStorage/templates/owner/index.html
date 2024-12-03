@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block head %}
+{% endblock %}
+
+{% block content %}
+<h1>Панель владельца!</h1>
+
+<h2>Выберите таблицу:</h2>
+<a href="{% url 'clients' 'owner' %}" class="back-button">Клиенты</a>
+<a href="{% url 'employees' 'owner' %}" class="back-button">Работники</a>
+<a href="{% url 'productcategories' 'owner' %}" class="back-button">Категории продуктов</a>
+<a href="{% url 'products' 'owner' %}" class="back-button">Продукты</a>
+<a href="{% url 'suppliers' 'owner' %}" class="back-button">Поставщики</a>
+<a href="{% url 'transactions' 'owner' %}" class="back-button">Транзакции</a>
+<a href="{% url 'roles' 'owner' %}" class="back-button">Роли</a>
+
+<a href="{% url 'home' %}" class="back-button">Вернуться на прошлую страницу</a>
+{% endblock %}

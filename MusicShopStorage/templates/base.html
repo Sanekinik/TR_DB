@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Music Shop{% endblock %}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .back-button, .add-button, .edit-button, .delete-button {
+            display: inline-block; /* Чтобы кнопка выглядела как блок */
+            padding: 10px 20px; /* Отступы внутри кнопки */
+            background-color: #113085; /* Цвет фона кнопки */
+            color: rgb(57, 221, 250); /* Цвет текста кнопки */
+            text-decoration: none; /* Убираем подчеркивание у ссылки */
+            border-radius: 10px; /* Скругление углов кнопки */
+            margin-right: 10px; /* Отступ между кнопками */
+            border: none; /* Убираем границу */
+            cursor: pointer; /* Курсор в виде указателя */
+        }
+        .back-button:hover, .add-button:hover, .edit-button:hover, .delete-button:hover {
+            background-color: rgb(57, 221, 250); /* Цвет при наведении */
+            color: #113085;
+            
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse; /* Убирает пробелы между ячейками */
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px; /* Отступы внутри ячеек */
+            text-align: left; /* Выравнивание текста по левому краю */
+            border-bottom: 1px solid #ddd; /* Нижняя граница ячеек */
+        }
+        th {
+            background-color: #113085; /* Цвет фона заголовков */
+            color: rgb(57, 221, 250); /* Цвет текста заголовков */
+        }
+        tr:hover {
+            background-color: #f5f5f5; /* Цвет фона строки при наведении */
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9; /* Чередование цвета строк для удобства чтения */
+        }
+        .form-container {
+            background-color: #f2f2f2;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .form-container h2 {
+            margin-top: 0;
+        }
+        input[type="text"], input[type="number"], input[type="date"] {
+            width: calc(100% - 22px); /* Устанавливаем ширину с учетом отступов */
+            padding: 10px; /* Отступы внутри полей ввода */
+            margin-bottom: 10px; /* Отступ снизу для отделения от других элементов */
+            border-radius: 5px; /* Скругление углов полей ввода */
+            border: 1px solid #ccc; /* Цвет границы полей ввода */
+        }
+        input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus {
+            border-color: #113085; /* Изменение цвета границы при фокусе */
+            outline: none; /* Убираем стандартное выделение при фокусе */
+        }
+    </style>
+    {% block head %}
+    
+    {% endblock %}
+</head>
+<body>
+    {% block content %}
+
+    {% endblock %}
+</body> 
+</html> 

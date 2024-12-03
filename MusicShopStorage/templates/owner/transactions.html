@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<script>
+    function showAddForm() {
+        document.getElementById('add-form').style.display = 'block';
+        document.getElementById('edit-form').style.display = 'none'; // Скрываем форму редактирования
+        document.getElementById('add-form').reset(); // Сбрасываем форму добавления
+    }
+
+    function editTransaction(Id) {
+        const row = document.getElementById(`transaction-${Id}`);
+        if (!row) {
+            console.error('Transaction row not found:', Id);
+            return;
+        }
+        // Заполняем поля формы редактирования данными из строки таблицы
+        document.getElementById('edit-id').value = Id;
+        document.getElementById('edit-productname').value = row.querySelector('.productname').innerText;
+        document.getElementById('edit-clientphone').value = row.querySelector('.clientphone').innerText;
+        document.getElementById('edit-quantity').value = row.querySelector('.quantity').innerText;
+        document.getElementById('edit-transactiondate').value = row.querySelector('.transactiondate').innerText;;
+        document.getElementById('edit-employeeid').value = row.querySelector('.employeeid').innerText;
+        // Показываем форму редактирования
+        document.getElementById('edit-form').style.display = 'block';
+        document.getElementById('add-form').style.display = 'none'; // Скрываем форму добавления
+    }
+
+    function deleteTransaction(Id) {
+        if (confirm('Вы уверены, что хотите удалить эту транзакцию?')) {
+            fetch(`/transaction/delete/${Id}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}', // Добавьте CSRF-токен
+                },
+            })
+            .then(response => {
+                if (response.ok) {
+                    document.getElementById(`transaction-${Id}`).remove(); // Удаляем строку из таблицы
+                } else {
+                    alert('Ошибка при удалении транзакции.');
+                }
+            });
+        }
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+<h1>Транзакции</h1>
+
+    <a href="{% url 'index' 'owner' %}" class="back-button">Вернуться на прошлую страницу</a>
+    <button class="add-button" onclick="showAddForm()">Добавить транзакцию</button>
+
+    <!-- Форма добавления -->
+    <div id="add-form" style="display:none;">
+         <h2>Добавить транзакцию</h2>
+         <form method="post" action="add/">
+            {% csrf_token %}
+             Продукт:<br>
+             <input type="text" id="add-productname" name="productname" required><br>
+
+             Номер телефона клиента:<br>
+             <input type="text" id="add-clientphone" name="clientphone" required><br>
+
+             Количество:<br>
+             <input type="number" id="add-quantity" name="quantity" required><br>
+
+             Дата транзакции:<br>
+             <input type="date" id="add-transactiondate" name="transactiondate" required><br>
+
+             ID работника:<br>
+             <input type="text" id="add-employeeid" name="employeeid" required><br><br>
+
+             <button type="submit">Добавить</button>
+             <button type="button" onclick="document.getElementById('add-form').style.display='none'">Отмена</button>
+         </form>
+     </div>
+
+     <!-- Форма редактирования -->
+     <div id="edit-form" style="display:none;">
+         <h2>Редактировать транзакцию</h2>
+         <form method="post" action="edit/">
+            {% csrf_token %}
+            ID:<br>
+            <input type="number" id="edit-id" name="id" readonly><br>
+             
+             Продукт:<br>
+             <input type="text" id="edit-productname" name="productname" required><br>
+
+             Номер телефона клиента:<br>
+             <input type="text" id="edit-clientphone" name="clientphone" required><br>
+
+             Количество:<br>
+             <input type="number" id="edit-quantity" name="quantity" required><br>
+
+             Дата транзакции:<br>
+             <input type="date" id="edit-transactiondate" name="transactiondate" required><br>
+
+             ID работника:<br>
+             <input type="text" id="edit-employeeid" name="employeeid" required><br><br>
+
+             <button type="submit">Сохранить изменения</button>
+             <button type="button" onclick="document.getElementById('edit-form').style.display='none'">Отмена</button>
+         </form>
+     </div>
+
+     <table>
+         <tr>
+             <th>ID</th>
+             <th>Продукт</th>
+             <th>Телефон клиента</th>
+             <th>Количество</th>
+             <th>Дата транзакции</th>
+             <th>ID Работника</th>
+             <th>Действия</th>
+         </tr>
+         {% for transaction in transactions %}
+         <tr id="transaction-{{ transaction.0 }}">
+           <td class="id">{{ transaction.0 }}</td>
+           <td class="productname">{{ transaction.1 }}</td> 
+           <td class="clientphone">{{ transaction.2 }}</td> 
+           <td class="quantity">{{ transaction.3 }}</td> 
+           <td class="transactiondate">{{ transaction.4 }}</td> 
+           <td class="employeeid">{{ transaction.5 }}</td> 
+           <td> 
+            <button class='edit-button' onclick='editTransaction("{{ transaction.0 }}")'>Редактировать</button> 
+            <form method="POST" action="delete/" style="display:inline;">
+              {% csrf_token %}
+              <input type="hidden" id="edit-client-id" name="id" value="{{ transaction.0 }}"><br>
+              <button class="delete-button" type="submit" onclick="return confirm('Вы уверены, что хотите удалить эту транзакцию?');">Удалить</button>
+            </form> 
+            </td> 
+         </tr> 
+         {% endfor %}
+     </table>
+     {% csrf_token %}
+     {% endblock %}

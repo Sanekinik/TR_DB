@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Главная</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        a {
+            display: block; /* Ссылки в виде блоков */
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #113085;
+            color: rgb(57, 221, 250);
+            text-decoration: none; /* Убираем подчеркивание */
+            border-radius: 5px; /* Скругление углов */
+        }
+        a:hover {
+            background-color: rgb(57, 221, 250); /* Цвет при наведении */
+            color: #113085;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Добро пожаловать!</h1>
+
+<h2>Выберите формат входа:</h2>
+<a href="{% url 'index' 'owner' %}">Зайти как владелец</a>
+<a href="{% url 'index' 'mainadmin' %}">Зайти как главный администратор</a>
+
+</body>
+</html>

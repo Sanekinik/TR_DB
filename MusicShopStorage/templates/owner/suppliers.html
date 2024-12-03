@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<script>
+    function showAddForm() {
+        document.getElementById('add-form').style.display = 'block';
+        document.getElementById('edit-form').style.display = 'none'; // Скрываем форму редактирования
+        document.getElementById('add-form').reset(); // Сбрасываем форму добавления
+    }
+
+    function editSupplier(Id) {
+        const row = document.getElementById(`supplier-${Id}`);
+        if (!row) {
+            console.error('Supplier row not found:', Id);
+            return;
+        }
+        // Заполняем поля формы редактирования данными из строки таблицы
+        document.getElementById('edit-id').value = Id;
+        document.getElementById('edit-suppliername').value = row.querySelector('.suppliername').innerText;
+        
+        // Показываем форму редактирования
+        document.getElementById('edit-form').style.display = 'block';
+        document.getElementById('add-form').style.display = 'none'; // Скрываем форму добавления
+    }
+
+    function deleteSupplier(Id) {
+        if (confirm('Вы уверены, что хотите удалить этого поставщика?')) {
+            fetch(`/supplier/delete/${Id}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}', // Добавьте CSRF-токен
+                },
+            })
+            .then(response => {
+                if (response.ok) {
+                    document.getElementById(`supplier-${Id}`).remove(); // Удаляем строку из таблицы
+                } else {
+                    alert('Ошибка при удалении поставщика.');
+                }
+            });
+        }
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+    <h1>Поставщики</h1>
+
+    <a href="{% url 'index' 'owner' %}" class="back-button">Вернуться на прошлую страницу</a>
+    <button class="add-button" onclick="showAddForm()">Добавить поставщика</button>
+
+    <!-- Форма добавления -->
+<div id="add-form" style="display:none;">
+    <h2>Добавить поставщика</h2>
+    <form method="post" action="add/">
+        {% csrf_token %}
+        Название поставщика:<br>
+        <input type="text" id="add-suppliername" name="suppliername" required><br>
+
+        <button type="submit">Добавить</button>
+        <button type="button" onclick="document.getElementById('add-form').style.display='none'">Отмена</button>
+    </form>
+</div>
+
+<!-- Форма редактирования -->
+<div id="edit-form" style="display:none;">
+    <h2>Редактировать поставщика</h2>
+    <form method="post" action="edit/">
+        {% csrf_token %}
+        ID:<br>
+        <input type="number" id="edit-id" name="id" readonly><br>
+        
+        Название поставщика:<br>
+        <input type="text" id="edit-suppliername" name="suppliername" required><br>
+        
+        <button type="submit">Сохранить изменения</button>
+        <button type="button" onclick="document.getElementById('edit-form').style.display='none'">Отмена</button>
+    </form>
+</div>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Название</th>
+            <th>Действия</th>
+        </tr>
+        {% for supplier in suppliers %}
+        <tr id="supplier-{{ supplier.0 }}">
+            <td class="id">{{ supplier.0 }}</td>
+            <td class="suppliername">{{ supplier.1 }}</td>
+            <td> 
+                <button class='edit-button' onclick='editSupplier("{{ supplier.0 }}")'>Редактировать</button> 
+                <form method="POST" action="delete/" style="display:inline;">
+                  {% csrf_token %}
+                  <input type="hidden" id="edit-client-id" name="id" value="{{ supplier.0 }}"><br>
+                  <button class="delete-button" type="submit" onclick="return confirm('Вы уверены, что хотите удалить этого поставщика?');">Удалить</button>
+                </form> 
+            </td> 
+        </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

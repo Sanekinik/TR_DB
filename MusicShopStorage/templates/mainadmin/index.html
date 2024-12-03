@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block head %}
+{% endblock %}
+
+{% block content %}
+<h1>Панель главного администратора!</h1>
+
+<h2>Выберите таблицу:</h2>
+<a href="{% url 'clients' 'mainadmin' %}" class="back-button">Клиенты</a>
+<a href="{% url 'products' 'mainadmin' %}" class="back-button">Продукты</a>
+<a href="{% url 'transactions' 'mainadmin' %}" class="back-button">Транзакции</a>
+
+<a href="{% url 'home' %}" class="back-button">Вернуться на прошлую страницу</a>
+{% endblock %}

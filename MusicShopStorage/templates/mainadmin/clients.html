@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<script>
+    function showAddForm() {
+        document.getElementById('add-form').style.display = 'block';
+        document.getElementById('edit-form').style.display = 'none'; // Скрываем форму редактирования
+        document.getElementById('add-form').reset(); // Сбрасываем форму добавления
+    }
+
+    function editClient(clientId) {
+        const row = document.getElementById(`client-${clientId}`);
+        if (!row) {
+            console.error('Client row not found:', clientId);
+            return;
+        }
+        // Заполняем поля формы редактирования данными из строки таблицы
+        document.getElementById('edit-fullname').value = row.querySelector('.fullname').innerText;
+        document.getElementById('edit-dateofbirth').value = row.querySelector('.dateofbirth').innerText;
+        document.getElementById('edit-phone').value = row.querySelector('.phone').innerText;
+        document.getElementById('edit-client-id').value = clientId;
+        // Показываем форму редактирования
+        document.getElementById('edit-form').style.display = 'block';
+        document.getElementById('add-form').style.display = 'none'; // Скрываем форму добавления
+    }
+
+    function deleteClient(clientId) {
+        if (confirm('Вы уверены, что хотите удалить этого клиента?')) {
+            fetch(`/clients/delete/${clientId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}', // Добавьте CSRF-токен
+                },
+            })
+            .then(response => {
+                if (response.ok) {
+                    document.getElementById(`client-${clientId}`).remove(); // Удаляем строку из таблицы
+                } else {
+                    alert('Ошибка при удалении клиента.');
+                }
+            });
+        }
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+<h1>Клиенты</h1>
+
+<a href="{% url 'index' 'mainadmin' %}" class="back-button">Вернуться на прошлую страницу</a>
+<button class="add-button" onclick="showAddForm()">Добавить клиента</button>
+
+<!-- Форма добавления -->
+<div id="add-form" style="display:none;">
+    <h2>Добавить клиента</h2>
+    <form method="post" action="add/">
+        {% csrf_token %}
+        ФИО:<br>
+        <input type="text" id="add-fullname" name="fullname" required><br>
+
+        Дата рождения:<br>
+        <input type="date" id="add-dateofbirth" name="dateofbirth" required><br>
+
+        Телефон:<br>
+        <input type="number" id="add-phone" name="phone" required><br>
+        
+        <button type="submit">Добавить</button>
+        <button type="button" onclick="document.getElementById('add-form').style.display='none'">Отмена</button>
+    </form>
+</div>
+
+<!-- Форма редактирования -->
+<div id="edit-form" style="display:none;">
+    <h2>Редактировать клиента</h2>
+    <form method="post" action="edit/">
+        ID:<br>
+        <input type="number" id="edit-client-id" name="id" readonly><br>
+        
+        ФИО:<br>
+        <input type="text" id="edit-fullname" name="fullname" required><br>
+
+        Дата рождения:<br>
+        <input type="date" id="edit-dateofbirth" name="dateofbirth" required><br>
+
+        Телефон:<br>
+        <input type="text" id="edit-phone" name="phone"><br>
+        {% csrf_token %}
+        <button type="submit">Сохранить изменения</button>
+        <button type="button" onclick="document.getElementById('edit-form').style.display='none'">Отмена</button>
+    </form>
+</div>
+
+<table>
+    <tr>
+        <th>ID</th>
+        <th>ФИО</th>
+        <th>Дата рождения</th>
+        <th>Телефон</th>
+        <th>Действия</th>
+    </tr>
+    {% for client in clients %}
+    <tr id="client-{{ client.0 }}">
+      <td>{{ client.0 }}</td> <!-- ID -->
+      <td class='fullname'>{{ client.1 }}</td> <!-- ФИО -->
+      <td class='dateofbirth'>{{ client.2 }}</td> <!-- Дата рождения -->
+      <td class='phone'>{{ client.3 }}</td> <!-- Телефон -->
+      <td> 
+          <button class='edit-button' onclick='editClient("{{ client.0 }}")'>Редактировать</button> 
+          <form method="POST" action="delete/" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" id="edit-client-id" name="id" value="{{ client.0 }}"><br>
+            <button class="delete-button" type="submit" onclick="return confirm('Вы уверены, что хотите удалить этого клиента?');">Удалить</button>
+          </form> 
+      </td> 
+    </tr> 
+    {% endfor %}
+</table>
+{% endblock %}

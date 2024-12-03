@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<script>
+    function showAddForm() {
+        document.getElementById('add-form').style.display = 'block';
+        document.getElementById('edit-form').style.display = 'none'; // Скрываем форму редактирования
+        document.getElementById('add-form').reset(); // Сбрасываем форму добавления
+    }
+
+    function editProduct(Id) {
+        const row = document.getElementById(`product-${Id}`);
+        if (!row) {
+            console.error('Product row not found:', Id);
+            return;
+        }
+        // Заполняем поля формы редактирования данными из строки таблицы
+        document.getElementById('edit-id').value = Id;
+        document.getElementById('edit-productname').value = row.querySelector('.productname').innerText;
+        document.getElementById('edit-categoryname').value = row.querySelector('.categoryname').innerText;
+        document.getElementById('edit-suppliername').value = row.querySelector('.suppliername').innerText;
+        document.getElementById('edit-quantityinstock').value = row.querySelector('.quantityinstock').innerText;;
+        document.getElementById('edit-price').value = row.querySelector('.price').innerText;
+        // Показываем форму редактирования
+        document.getElementById('edit-form').style.display = 'block';
+        document.getElementById('add-form').style.display = 'none'; // Скрываем форму добавления
+    }
+
+    function deleteProduct(Id) {
+        if (confirm('Вы уверены, что хотите удалить этот продукт?')) {
+            fetch(`/product/delete/${Id}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}', // Добавьте CSRF-токен
+                },
+            })
+            .then(response => {
+                if (response.ok) {
+                    document.getElementById(`product-${Id}`).remove(); // Удаляем строку из таблицы
+                } else {
+                    alert('Ошибка при удалении продукта.');
+                }
+            });
+        }
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+    <h1>Товары</h1>
+
+    <a href="{% url 'index' 'mainadmin' %}" class="back-button">Вернуться на прошлую страницу</a>
+    <button class="add-button" onclick="showAddForm()">Добавить продукт</button>
+
+    <!-- Форма добавления -->
+<div id="add-form" style="display:none;">
+    <h2>Добавить продукт</h2>
+    <form method="post" action="add/">
+        {% csrf_token %}
+        Название:<br>
+        <input type="text" id="add-productname" name="productname" required><br>
+
+        Категория:<br>
+        <input type="text" id="add-categoryname" name="categoryname" required><br>
+
+        Поставщик:<br>
+        <input type="text" id="add-suppliername" name="suppliername" required><br>
+
+        Количество на складе:<br>
+        <input type="number" id="add-quantityinstock" name="quantityinstock" required><br>
+
+        Цена:<br>
+        <input type="number" id="add-price" name="price" required><br>
+        
+        <button type="submit">Добавить</button>
+        <button type="button" onclick="document.getElementById('add-form').style.display='none'">Отмена</button>
+    </form>
+</div>
+
+<!-- Форма редактирования -->
+<div id="edit-form" style="display:none;">
+    <h2>Редактировать продукт</h2>
+    <form method="post" action="edit/">
+        {% csrf_token %}
+        ID:<br>
+        <input type="number" id="edit-id" name="id" readonly><br>
+        
+        Название:<br>
+        <input type="text" id="edit-productname" name="productname" required><br>
+
+        Категория:<br>
+        <input type="text" id="edit-categoryname" name="categoryname" required><br>
+
+        Поставщик:<br>
+        <input type="text" id="edit-suppliername" name="suppliername" required><br>
+
+        Количество на складе:<br>
+        <input type="number" id="edit-quantityinstock" name="quantityinstock" required><br>
+
+        Цена:<br>
+        <input type="number" id="edit-price" name="price" required><br>
+        
+        <button type="submit">Сохранить изменения</button>
+        <button type="button" onclick="document.getElementById('edit-form').style.display='none'">Отмена</button>
+    </form>
+</div>
+    
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Название</th>
+            <th>Категория</th>
+            <th>Поставщик</th>
+            <th>Количество</th>
+            <th>Цена</th>
+            <th>Действия</th>
+        </tr>
+        {% for product in products %}
+        <tr id="product-{{ product.0 }}">
+            <td class="id">{{ product.0 }}</td>
+            <td class="productname">{{ product.1 }}</td>
+            <td class="categoryname">{{ product.2 }}</td>
+            <td class="suppliername">{{ product.3 }}</td> 
+            <td class="quantityinstock">{{ product.4 }}</td>
+            <td class="price">{{ product.5 }}</td>
+            <td> 
+                <button class='edit-button' onclick='editProduct("{{ product.0 }}")'>Редактировать</button> 
+                <form method="POST" action="delete/" style="display:inline;">
+                  {% csrf_token %}
+                  <input type="hidden" id="edit-client-id" name="id" value="{{ product.0 }}"><br>
+                  <button class="delete-button" type="submit" onclick="return confirm('Вы уверены, что хотите удалить этот продукт?');">Удалить</button>
+                </form> 
+            </td> 
+        </tr>
+        {% endfor %}
+    </table>
+    {% endblock %}
